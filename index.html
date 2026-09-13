@@ -2,68 +2,168 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3b5bdb">
 <title>Quiz Master Coordinamento</title>
 <style>
-:root{--bg:#f4f5f7;--card:#fff;--txt:#1d2330;--mut:#6b7280;--acc:#2f5fd0;--ok:#1e8e4a;--okbg:#e6f6ec;--ko:#c93b3b;--kobg:#fdecec;--bd:#e3e6eb;--warn:#b7791f;--warnbg:#fff7e6}
+:root{
+  --bg:#eef1f6;--card:#ffffff;--txt:#16213a;--mut:#66708a;--bd:#e2e6ef;--soft:#f5f7fb;
+  --acc:#3b5bdb;--acc2:#6d5dfc;--accbg:#e9edfb;
+  --ok:#2b8a3e;--okbg:#e9f7ec;--ko:#c92a2a;--kobg:#fdeaea;--warn:#b7791f;--warnbg:#fff7e6;
+  --sh:0 1px 2px rgba(20,30,60,.05),0 10px 30px rgba(20,30,60,.07);
+  --r:16px;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f1420;--card:#171d2b;--txt:#e8ecf4;--mut:#98a2b8;--bd:#283148;--soft:#1e2536;
+  --accbg:#222b48;--okbg:#17301f;--kobg:#3a1c1c;--warnbg:#3a2e14;
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+}}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);line-height:1.45}
-header{background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
-.wrap{max-width:860px;margin:0 auto;padding:0 16px}
-nav{display:flex;gap:4px;overflow-x:auto;padding:10px 0}
-nav button{flex:0 0 auto;border:1px solid var(--bd);background:var(--card);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:14px;color:var(--txt)}
-nav button.on{background:var(--acc);border-color:var(--acc);color:#fff}
-main{padding:18px 0 60px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-bottom:16px}
-.meta{font-size:13px;color:var(--mut);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.q{font-size:18px;font-weight:600;margin:0 0 16px}
-.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;font-size:16px;color:var(--txt);font-family:inherit}
-.opt:hover{border-color:var(--acc)}
-.opt .l{font-weight:700;color:var(--acc);min-width:20px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",sans-serif;background:var(--bg);color:var(--txt);line-height:1.5}
+button{font-family:inherit}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px}
+
+/* testata */
+.top{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:18px 0 54px}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-weight:800;font-size:20px;flex:0 0 auto}
+.brand b{display:block;font-size:18px;line-height:1.2}
+.brand small{display:block;opacity:.85;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 11px;font-size:12.5px;white-space:nowrap}
+
+/* schede */
+.tabs{margin-top:-36px;position:sticky;top:0;z-index:10}
+.tabs .wrap>div{display:flex;background:var(--card);border-radius:14px;box-shadow:var(--sh);padding:5px;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs .wrap>div::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;border:none;background:transparent;color:var(--mut);padding:9px 12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;transition:background .15s,color .15s}
+.tab svg{width:17px;height:17px;flex:0 0 auto}
+.tab.on{background:var(--accbg);color:var(--acc)}
+.tab .cnt{background:var(--ko);color:#fff;border-radius:999px;font-size:11px;padding:0 6px;line-height:17px;font-weight:700}
+
+main{padding:20px 0 40px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:22px;margin-bottom:16px}
+.card.flat{box-shadow:none;border:1px solid var(--bd)}
+h2{font-size:17px;margin:0 0 12px}
+.small{font-size:13px;color:var(--mut)}
+.note{background:var(--warnbg);border-left:4px solid var(--warn);border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:16px}
+
+/* selettore modalità */
+.seg{display:inline-flex;background:var(--soft);border-radius:12px;padding:4px;gap:2px;margin-bottom:14px;max-width:100%}
+.seg button{border:none;background:transparent;color:var(--mut);padding:8px 14px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--card);color:var(--txt);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+
+/* domanda */
+.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin-bottom:8px}
+.prog{height:7px;background:var(--bd);border-radius:4px;overflow:hidden;margin-bottom:16px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:4px;transition:width .3s}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--acc);background:var(--accbg);padding:3px 9px;border-radius:999px;margin-bottom:12px}
+.q{font-size:19px;font-weight:650;margin:0 0 18px;line-height:1.4}
+.opt{display:flex;gap:13px;align-items:flex-start;width:100%;text-align:left;border:1.5px solid var(--bd);background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:9px;cursor:pointer;font-size:15.5px;color:var(--txt);transition:border-color .12s,background .12s,transform .08s}
+.opt:hover:not(:disabled){border-color:var(--acc);background:var(--soft)}
+.opt:active:not(:disabled){transform:scale(.995)}
+.opt .l{width:28px;height:28px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--soft);color:var(--acc);border:1px solid var(--bd)}
 .opt.ok{background:var(--okbg);border-color:var(--ok)}
+.opt.ok .l{background:var(--ok);color:#fff;border-color:var(--ok)}
 .opt.ko{background:var(--kobg);border-color:var(--ko)}
-.opt.sel{border-width:2px}
-.opt:disabled{cursor:default}
-.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
-.btn{border:none;background:var(--acc);color:#fff;padding:10px 18px;border-radius:8px;font-size:15px;cursor:pointer;font-family:inherit}
-.btn.sec{background:var(--card);color:var(--txt);border:1px solid var(--bd)}
+.opt.ko .l{background:var(--ko);color:#fff;border-color:var(--ko)}
+.opt:disabled{cursor:default;opacity:.92}
+.opt.dim{opacity:.55}
+.fb{display:flex;align-items:center;gap:10px;font-weight:600;margin-top:14px;padding:11px 14px;border-radius:12px}
+.fb.ok{background:var(--okbg);color:var(--ok)}.fb.ko{background:var(--kobg);color:var(--ko)}
+.fb.rev{background:var(--soft);color:var(--mut)}
+.fb .k{font-weight:400;font-size:13px;margin-left:auto;white-space:nowrap}
+
+/* pulsanti */
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.bar .sp{flex:1}
+.btn{border:none;background:var(--acc);color:#fff;padding:10px 18px;border-radius:11px;font-size:14.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:filter .12s}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn.sec{background:var(--soft);color:var(--txt);border:1px solid var(--bd)}
+.btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--bd)}
 .btn.danger{background:var(--ko)}
-.btn:disabled{opacity:.5;cursor:default}
-.fb{font-weight:600;margin-top:10px}
-.fb.ok{color:var(--ok)}.fb.ko{color:var(--ko)}
-.prog{height:6px;background:var(--bd);border-radius:3px;overflow:hidden;margin:6px 0 14px}
-.prog i{display:block;height:100%;background:var(--acc)}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
-.stat{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px}
-.stat b{display:block;font-size:24px}.stat span{font-size:13px;color:var(--mut)}
-.row{border-bottom:1px solid var(--bd);padding:12px 0}
+.btn.sm{padding:6px 12px;font-size:13px}
+.btn:disabled{opacity:.4;cursor:default}
+kbd{border:1px solid var(--bd);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:11.5px;background:var(--soft);font-family:inherit}
+.hint{font-size:12.5px;color:var(--mut);margin-top:10px}
+
+/* fine giro */
+.done{text-align:center;padding:36px 22px}
+.done .big{font-size:52px;font-weight:800;color:var(--acc);line-height:1}
+.done .bar{justify-content:center}
+
+/* statistiche */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--card);box-shadow:var(--sh);border-radius:14px;padding:14px 16px}
+.stat b{display:block;font-size:26px;color:var(--acc)}.stat span{font-size:12.5px;color:var(--mut)}
+.row{border-bottom:1px solid var(--bd);padding:13px 0}
 .row:last-child{border:none}
 .row .t{font-weight:600}
-.row .s{font-size:13px;color:var(--mut);margin-top:4px}
-.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--kobg);color:var(--ko);font-weight:600;margin-right:6px}
+.row .s{font-size:13px;color:var(--mut);margin-top:5px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;background:var(--kobg);color:var(--ko);font-weight:600}
 .pill.g{background:var(--okbg);color:var(--ok)}
 .pill.w{background:var(--warnbg);color:var(--warn)}
-.note{background:var(--warnbg);border:1px solid #f0d9a8;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:16px}
-.ans{margin-top:8px;font-size:14px}
-.ans .l{font-weight:700;margin-right:6px}
-.ans.g{color:var(--ok)}
-.small{font-size:13px;color:var(--mut)}
-select,input[type=search]{padding:8px 10px;border:1px solid var(--bd);border-radius:8px;font-size:14px;background:var(--card);color:var(--txt);font-family:inherit}
-kbd{border:1px solid var(--bd);border-radius:4px;padding:0 5px;font-size:12px;background:#f8f9fb}
-details summary{cursor:pointer;font-weight:600;padding:6px 0}
-@media (max-width:600px){.q{font-size:17px}.opt{font-size:15px}}
+.ans{margin-top:6px;font-size:14px;display:flex;gap:8px;align-items:flex-start}
+.ans .l{font-weight:700;min-width:18px}
+.ans.g{color:var(--ok);font-weight:600}
+.mbar{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:14px}
+.mbar:last-child{border:none}
+.mbar .nm{flex:0 0 150px}
+.mbar .tr{flex:1;height:8px;background:var(--bd);border-radius:4px;overflow:hidden}
+.mbar .tr i{display:block;height:100%;background:var(--ok)}
+.mbar .pc{flex:0 0 120px;text-align:right;color:var(--mut);font-size:12.5px}
+select,input[type=search]{padding:10px 12px;border:1px solid var(--bd);border-radius:11px;font-size:14px;background:var(--card);color:var(--txt);font-family:inherit}
+details summary{cursor:pointer;font-weight:600;padding:6px 0;color:var(--acc);font-size:14px}
+label.ans{cursor:pointer;padding:6px 8px;border-radius:8px}
+label.ans:hover{background:var(--soft)}
+
+/* flashcard */
+.fc-wrap{perspective:1400px;margin-bottom:14px}
+.fc{position:relative;min-height:300px;transition:transform .5s;transform-style:preserve-3d;cursor:pointer}
+.fc.flip{transform:rotateY(180deg)}
+.fc>div{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:26px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.fc .back{transform:rotateY(180deg);background:linear-gradient(160deg,var(--okbg),var(--card))}
+.fc .q{margin:0}
+.fc .tap{position:absolute;bottom:14px;left:0;right:0;font-size:12.5px;color:var(--mut)}
+.fc .ansl{width:44px;height:44px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px;margin-bottom:14px}
+.fc .anst{font-size:18px;font-weight:600}
+
+@media (max-width:640px){
+  .top{padding:14px 0 50px}
+  .brand small{max-width:52vw}
+  .chips{display:none}
+  .q{font-size:17px}.opt{font-size:15px;padding:11px 12px}
+  .card{padding:18px;border-radius:14px}
+  .tab{padding:9px 10px;font-size:13px}
+  .tab span.lbl{display:none}
+  .tab.on span.lbl{display:inline}
+  .mbar .nm{flex-basis:90px}.mbar .pc{flex-basis:90px}
+  .fc{min-height:260px}
+  .fb{flex-wrap:wrap}.fb .k{margin-left:0;white-space:normal;flex-basis:100%}
+  .bar #nextBtn{flex-basis:100%;justify-content:center}
+  .bar .btn.danger,.fc-wrap+.bar .btn{flex:1;justify-content:center}
+}
+@media (hover:none) and (pointer:coarse){.hint{display:none}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><nav>
-<button data-v="train" class="on">Allenamento</button>
-<button data-v="errors">Errori frequenti</button>
-<button data-v="browse">Sfoglia</button>
-<button data-v="todo">Da completare</button>
-<button data-v="stats">Statistiche</button>
-</nav></div></header>
+<header class="top"><div class="wrap">
+  <div class="brand"><div class="logo">Q</div><div><b>Quiz Master</b><small>Management per le funzioni di coordinamento</small></div></div>
+  <div class="chips" id="chips"></div>
+</div></header>
+<nav class="tabs"><div class="wrap"><div id="tabs">
+  <button class="tab on" data-v="train"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9z"/></svg><span class="lbl">Allenamento</span></button>
+  <button class="tab" data-v="fc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M7 4h14v12"/></svg><span class="lbl">Flashcard</span></button>
+  <button class="tab" data-v="errors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span class="lbl">Errori</span><span class="cnt" id="errcnt" hidden></span></button>
+  <button class="tab" data-v="browse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg><span class="lbl">Sfoglia</span></button>
+  <button class="tab" data-v="todo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg><span class="lbl">Da completare</span></button>
+  <button class="tab" data-v="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="lbl">Statistiche</span></button>
+</div></div></nav>
 <main class="wrap">
 <section id="v-train"></section>
+<section id="v-fc" hidden></section>
 <section id="v-errors" hidden></section>
 <section id="v-browse" hidden></section>
 <section id="v-todo" hidden></section>
@@ -74,94 +174,186 @@ const RAW = [{"id": 1, "m": 1, "n": 1, "q": "Le norme di riferimento per i DPI s
 const LS = 'quizmaster-v1';
 const L = 'ABCD';
 let S = load();
-function load(){ try{ const s = JSON.parse(localStorage.getItem(LS)); if(s) return s; }catch(e){} return {stats:{}, manual:{}, cycle:[], cyclePos:0, cycleN:0, errCycle:[], errPos:0, mode:'all', useSugg:false}; }
-if(S.useSugg===undefined) S.useSugg=false;
+function load(){
+  let s = null; try{ s = JSON.parse(localStorage.getItem(LS)); }catch(e){}
+  if(!s) s = {stats:{}, manual:{}};
+  if(!s.stats) s.stats = {}; if(!s.manual) s.manual = {};
+  if(!s.d){ // migrazione dal formato precedente
+    s.d = {};
+    if(s.cycle && s.cycle.length) s.d.all = {c:s.cycle, p:s.cyclePos||0, n:s.cycleN||1, g:{}};
+    delete s.cycle; delete s.cyclePos; delete s.cycleN; delete s.errCycle; delete s.errPos; delete s.useSugg;
+  }
+  if(!s.mode || (s.mode!=='all' && s.mode!=='err')) s.mode = 'all';
+  if(!s.fcMode) s.fcMode = 'all';
+  return s;
+}
 function save(){ try{ localStorage.setItem(LS, JSON.stringify(S)); }catch(e){} }
-function ansOf(q){ if(q.a >= 0) return q.a; if(S.manual[q.id] !== undefined) return S.manual[q.id]; if(S.useSugg && q.s !== undefined) return q.s; return -1; }
-function badge(q){ if(q.a >= 0) return ''; if(S.manual[q.id] !== undefined) return ' · <span class="pill g">risposta impostata a mano</span>'; if(q.s !== undefined) return ' · <span class="pill w">risposta suggerita (fiducia ' + q.f + '), assente nel PDF</span>'; return ''; }
+function ansOf(q){ if(q.a >= 0) return q.a; if(S.manual[q.id] !== undefined) return S.manual[q.id]; return -1; }
 function ready(){ return RAW.filter(q => ansOf(q) >= 0); }
 function st(id){ return S.stats[id] || (S.stats[id] = {ok:0, ko:0, last:[]}); }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function byId(id){ return RAW.find(q => q.id === id); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 // contenitore errori: almeno un errore e non ancora due risposte giuste di fila
 function inErrorBox(id){ const s = S.stats[id]; if(!s || !s.ko) return false; const l = s.last; return !(l.length >= 2 && l[l.length-1] && l[l.length-2]); }
 function errorList(){ return RAW.filter(q => inErrorBox(q.id)).sort((a,b)=> st(b.id).ko - st(a.id).ko || (st(a.id).ok - st(b.id).ok)); }
 
-// ---- giro random senza ripetizioni ----
-function newCycle(){ S.cycle = shuffle(ready().map(q=>q.id)); S.cyclePos = 0; S.cycleN++; save(); }
-function currentAll(){
-  const ids = ready().map(q=>q.id);
-  const extra = ids.filter(id => !S.cycle.includes(id));
-  if(extra.length){ S.cycle = S.cycle.slice(0,S.cyclePos).concat(shuffle(S.cycle.slice(S.cyclePos).concat(extra))); }
-  S.cycle = S.cycle.filter(id => ids.includes(id));
-  if(S.cyclePos >= S.cycle.length){ newCycle(); }
-  if(!S.cycle.length) return null;
-  return byId(S.cycle[S.cyclePos]);
+// ---- mazzi: giro random senza ripetizioni, con storico per tornare indietro ----
+// nome: 'all' | 'err' | 'fc' | 'fcerr'. c = ordine degli id, p = prima domanda non ancora risposta, n = numero del giro, g = risposte date in questo giro {id:{p:scelta, s:statistiche precedenti}}
+const view = {};
+function deck(name){ return S.d[name] || (S.d[name] = {c:[], p:0, n:0, g:{}}); }
+function pool(name){ return (name==='err'||name==='fcerr') ? errorList() : ready(); }
+function fill(name){ const d = deck(name); d.c = shuffle(pool(name).map(q=>q.id)); d.p = 0; d.n++; d.g = {}; view[name] = 0; save(); }
+function sync(name){ // aggiunge al giro le domande diventate disponibili (risposte impostate a mano) e toglie quelle sparite
+  const d = deck(name); const ids = pool(name).map(q=>q.id);
+  const extra = ids.filter(id => !d.c.includes(id));
+  if(extra.length && d.p < d.c.length) d.c = d.c.slice(0,d.p).concat(shuffle(d.c.slice(d.p).concat(extra)));
+  if(name==='all'||name==='fc'){ const before = d.c.length; d.c = d.c.filter(id => ids.includes(id)); if(d.c.length !== before) d.p = Math.min(d.p, d.c.length); }
 }
-function currentErr(){
-  const ids = errorList().map(q=>q.id);
-  S.errCycle = S.errCycle.filter(id => ids.includes(id));
-  ids.filter(id => !S.errCycle.includes(id)).forEach(id => S.errCycle.push(id));
-  if(S.errPos >= S.errCycle.length){ S.errCycle = shuffle(S.errCycle); S.errPos = 0; }
-  if(!S.errCycle.length) return null;
-  return byId(S.errCycle[S.errPos]);
+function answer(name, id, pick, isOk){
+  const d = deck(name); const prev = S.stats[id] ? JSON.parse(JSON.stringify(S.stats[id])) : null;
+  const s = st(id); if(isOk) s.ok++; else s.ko++;
+  s.last.push(!!isOk); if(s.last.length>10) s.last.shift();
+  d.g[id] = {p:pick, s:prev}; save();
 }
+function undo(name, id){
+  const d = deck(name); const g = d.g[id]; if(!g) return;
+  if(g.s) S.stats[id] = g.s; else delete S.stats[id];
+  delete d.g[id];
+  const i = d.c.indexOf(id);
+  if(i >= 0 && i < d.p){ d.c.splice(i,1); d.p--; d.c.splice(d.p,0,id); }
+  view[name] = d.p; save();
+}
+function skip(name){ const d = deck(name); if(d.p >= d.c.length-1) return; const id = d.c.splice(d.p,1)[0]; const k = d.p + 1 + Math.floor(Math.random()*(d.c.length-d.p)); d.c.splice(k,0,id); save(); }
+function advance(name){ const d = deck(name); if(d.g[d.c[d.p]]) d.p++; view[name] = d.p; save(); }
+function vpos(name){ const d = deck(name); if(view[name]===undefined || view[name] > d.p) view[name] = d.p; if(view[name] < 0) view[name] = 0; return view[name]; }
+function cycleScore(d){ let ok=0, n=0; for(const id in d.g){ n++; if(d.g[id].ok) ok++; } return {ok, n}; }
 
-let answered = false, lastPick = -1;
+// ---- allenamento ----
 function renderTrain(){
   const v = document.getElementById('v-train');
-  const modeErr = S.mode === 'err';
-  const q = modeErr ? currentErr() : currentAll();
-  const tot = modeErr ? S.errCycle.length : S.cycle.length;
-  const pos = modeErr ? S.errPos : S.cyclePos;
-  let h = '';
-  h += '<div class="bar" style="margin:0 0 12px"><button class="btn ' + (modeErr?'sec':'') + '" onclick="setMode(\'all\')">Tutte le domande</button><button class="btn ' + (modeErr?'':'sec') + '" onclick="setMode(\'err\')">Solo i miei errori (' + errorList().length + ')</button></div>';
-  if(!q){
-    h += '<div class="card">' + (modeErr ? 'Nessuna domanda nel contenitore degli errori. Torna a “Tutte le domande”.' : 'Nessuna domanda con risposta disponibile.') + '</div>';
+  const name = S.mode; const d = deck(name); sync(name);
+  if(d.n===0 || (!d.c.length && pool(name).length)) fill(name);
+  const nErr = errorList().length;
+  let h = '<div class="seg"><button class="' + (name==='all'?'on':'') + '" data-act="mode" data-arg="all">Tutte le domande</button><button class="' + (name==='err'?'on':'') + '" data-act="mode" data-arg="err">Solo i miei errori · ' + nErr + '</button></div>';
+  if(!d.c.length){
+    h += '<div class="card">' + (name==='err' ? 'Il contenitore degli errori è vuoto: per ora non hai nulla da ripassare.' : 'Nessuna domanda con risposta disponibile.') + '</div>';
     v.innerHTML = h; return;
   }
-  const a = ansOf(q);
-  h += '<div class="meta"><span>' + (modeErr ? 'Ripasso errori' : 'Giro n. ' + S.cycleN) + ' · domanda ' + (pos+1) + ' di ' + tot + '</span><span>Modulo ' + q.m + ', n. ' + q.n + badge(q) + '</span></div>';
-  h += '<div class="prog"><i style="width:' + Math.round(pos/tot*100) + '%"></i></div>';
-  h += '<div class="card"><p class="q">' + esc(q.q) + '</p>';
+  const p = vpos(name); const tot = d.c.length;
+  if(p >= tot){ // giro completato
+    const sc = cycleScore(d);
+    h += '<div class="card done"><div class="tag">' + (name==='err' ? 'Ripasso completato' : 'Giro n. ' + d.n + ' completato') + '</div>'
+      + '<div class="big">' + (sc.n ? Math.round(sc.ok/sc.n*100) : 0) + '%</div>'
+      + '<p>' + sc.ok + ' risposte giuste su ' + sc.n + '.</p>'
+      + '<div class="bar"><button class="btn ghost" data-act="back">Rivedi le ultime</button><button class="btn" data-act="newcycle">' + (name==='err' ? 'Ripassa di nuovo gli errori' : 'Nuovo giro') + '</button></div>'
+      + (name!=='err' && nErr ? '<div class="hint">Hai ' + nErr + ' domande nel contenitore degli errori: puoi allenarti solo su quelle.</div>' : '')
+      + '</div>';
+    v.innerHTML = h; return;
+  }
+  const q = byId(d.c[p]); const a = ansOf(q); const g = d.g[q.id]; const past = p < d.p;
+  const answered = !!g; const lastPick = answered ? g.p : -1;
+  h += '<div class="meta"><span>' + (name==='err' ? 'Ripasso errori' : 'Giro n. ' + d.n) + ' · domanda <b>' + (p+1) + '</b> di ' + tot + '</span><span>' + Object.keys(d.g).length + ' risposte date' + (past ? ' · <span class="pill w">stai rivedendo</span>' : '') + '</span></div>';
+  h += '<div class="prog"><i style="width:' + Math.round(d.p/tot*100) + '%"></i></div>';
+  h += '<div class="card"><span class="tag">Modulo ' + q.m + ' · n. ' + q.n + (S.manual[q.id]!==undefined ? ' · risposta impostata a mano' : '') + '</span><p class="q">' + esc(q.q) + '</p>';
   q.o.forEach((o,i)=>{
     let cls = 'opt';
-    if(answered){ if(i===a) cls += ' ok'; else if(i===lastPick) cls += ' ko'; if(i===lastPick) cls += ' sel'; }
-    h += '<button class="' + cls + '" ' + (answered?'disabled':'') + ' onclick="pick(' + i + ')"><span class="l">' + L[i] + '</span><span>' + esc(o) + '</span></button>';
+    if(answered){ if(i===a) cls += ' ok'; else if(i===lastPick) cls += ' ko'; else cls += ' dim'; }
+    h += '<button class="' + cls + '" ' + (answered?'disabled':'') + ' data-act="pick" data-arg="' + i + '"><span class="l">' + L[i] + '</span><span>' + esc(o) + '</span></button>';
   });
   if(answered){
-    h += '<div class="fb ' + (lastPick===a?'ok':'ko') + '">' + (lastPick===a ? 'Giusto.' : 'Sbagliato: la risposta corretta è ' + L[a] + '.') + '</div>';
     const s = st(q.id);
-    h += '<div class="small" style="margin-top:6px">Su questa domanda: ' + s.ok + ' giuste, ' + s.ko + ' sbagliate.</div>';
-    h += '<div class="bar"><button class="btn" id="nextBtn" onclick="next()">Avanti</button><span class="small">Tasto <kbd>Invio</kbd> o <kbd>Spazio</kbd></span></div>';
-  } else {
-    h += '<div class="small" style="margin-top:8px">Rispondi con i tasti <kbd>1</kbd>-<kbd>4</kbd> o <kbd>A</kbd>-<kbd>D</kbd>.</div>';
+    h += '<div class="fb ' + (lastPick===a?'ok':'ko') + '">' + (lastPick===a ? 'Giusto.' : 'Sbagliato: la risposta corretta è ' + L[a] + '.') + '<span class="k">su questa domanda ' + s.ok + ' giuste, ' + s.ko + ' sbagliate</span></div>';
   }
+  h += '<div class="bar">'
+    + '<button class="btn ghost" data-act="back" ' + (p>0?'':'disabled') + '>← Indietro</button>'
+    + (answered ? '<button class="btn sec" data-act="undo">' + (past ? 'Cambia risposta' : 'Annulla risposta') + '</button>' : '<button class="btn sec" data-act="skip" ' + (d.p < tot-1 ? '' : 'disabled') + '>Salta</button>')
+    + '<span class="sp"></span>'
+    + '<button class="btn" id="nextBtn" data-act="next" ' + (answered?'':'disabled') + '>Avanti →</button>'
+    + '</div>';
+  h += '<div class="hint">' + (answered ? 'Tasto <kbd>Invio</kbd> o <kbd>→</kbd> per andare avanti, <kbd>←</kbd> per tornare indietro, <kbd>Z</kbd> per annullare.' : 'Rispondi con <kbd>1</kbd>-<kbd>4</kbd> oppure <kbd>A</kbd>-<kbd>D</kbd>.') + '</div>';
   h += '</div>';
   v.innerHTML = h;
+  if(answered && !past){ const b = document.getElementById('nextBtn'); if(b) b.focus({preventScroll:true}); }
 }
-function setMode(m){ S.mode = m; answered = false; lastPick = -1; save(); renderTrain(); }
-function pick(i){
-  if(answered) return;
-  const q = S.mode==='err' ? currentErr() : currentAll(); if(!q) return;
-  const s = st(q.id); const a = ansOf(q);
-  if(i===a) s.ok++; else s.ko++;
-  s.last.push(i===a); if(s.last.length>10) s.last.shift();
-  answered = true; lastPick = i; save(); renderTrain();
-  const b = document.getElementById('nextBtn'); if(b) b.focus();
+function trainAct(act, arg){
+  const name = S.mode; const d = deck(name); const p = vpos(name);
+  if(act==='mode'){ S.mode = arg; const dd = deck(arg); if(arg==='err' && (dd.p >= dd.c.length)) fill('err'); save(); renderTrain(); return; }
+  if(act==='newcycle'){ fill(name); renderTrain(); window.scrollTo(0,0); return; }
+  if(act==='back'){ if(p >= d.c.length) view[name] = d.c.length-1; else if(p>0) view[name] = p-1; renderTrain(); return; }
+  if(act==='next'){ if(p < d.p){ view[name] = p+1; } else { advance(name); } renderTrain(); window.scrollTo(0,0); return; }
+  if(act==='skip'){ if(p===d.p && !d.g[d.c[p]]) skip(name); renderTrain(); return; }
+  if(act==='undo'){ undo(name, d.c[p]); renderTrain(); return; }
+  if(act==='pick'){
+    if(p !== d.p) return; const q = byId(d.c[p]); if(!q || d.g[q.id]) return;
+    const i = parseInt(arg); const a = ansOf(q); answer(name, q.id, i, i===a); d.g[q.id].ok = (i===a); save(); renderTrain(); return;
+  }
 }
-function next(){
-  if(!answered) return;
-  if(S.mode==='err'){ S.errPos++; } else { S.cyclePos++; }
-  answered = false; lastPick = -1; save(); renderTrain(); window.scrollTo(0,0);
+
+// ---- flashcard ----
+let flipped = false;
+function renderFc(){
+  const v = document.getElementById('v-fc');
+  const name = S.fcMode==='err' ? 'fcerr' : 'fc'; const d = deck(name); sync(name);
+  if(d.n===0 || (!d.c.length && pool(name).length)) fill(name);
+  const nErr = errorList().length;
+  let h = '<div class="seg"><button class="' + (name==='fc'?'on':'') + '" data-act="fcmode" data-arg="all">Tutte le domande</button><button class="' + (name==='fcerr'?'on':'') + '" data-act="fcmode" data-arg="err">Solo i miei errori · ' + nErr + '</button></div>';
+  if(!d.c.length){ h += '<div class="card">' + (name==='fcerr' ? 'Il contenitore degli errori è vuoto.' : 'Nessuna domanda con risposta disponibile.') + '</div>'; v.innerHTML = h; return; }
+  const p = vpos(name); const tot = d.c.length;
+  if(p >= tot){
+    const sc = cycleScore(d);
+    h += '<div class="card done"><div class="tag">Mazzo completato</div><div class="big">' + (sc.n ? Math.round(sc.ok/sc.n*100) : 0) + '%</div><p>' + sc.ok + ' carte che sapevi su ' + sc.n + '.</p>'
+      + '<div class="bar"><button class="btn ghost" data-act="fcback">Rivedi le ultime</button><button class="btn" data-act="fcnew">Nuovo mazzo</button></div></div>';
+    v.innerHTML = h; return;
+  }
+  const q = byId(d.c[p]); const a = ansOf(q); const g = d.g[q.id]; const past = p < d.p; const graded = !!g;
+  const show = flipped || graded;
+  h += '<div class="meta"><span>Carta <b>' + (p+1) + '</b> di ' + tot + '</span><span>' + Object.keys(d.g).length + ' valutate' + (past ? ' · <span class="pill w">stai rivedendo</span>' : '') + '</span></div>';
+  h += '<div class="prog"><i style="width:' + Math.round(d.p/tot*100) + '%"></i></div>';
+  h += '<div class="fc-wrap"><div class="fc ' + (show?'flip':'') + '" data-act="flip">'
+    + '<div class="front"><span class="tag">Modulo ' + q.m + ' · n. ' + q.n + '</span><p class="q">' + esc(q.q) + '</p><span class="tap">Tocca la carta o premi <kbd>Spazio</kbd> per vedere la risposta</span></div>'
+    + '<div class="back"><div class="ansl">' + L[a] + '</div><div class="anst">' + esc(q.o[a]) + '</div><span class="tap">' + esc(q.q) + '</span></div>'
+    + '</div></div>';
+  if(graded) h += '<div class="fb ' + (g.ok?'ok':'ko') + '">' + (g.ok ? 'Segnata come “la sapevo”.' : 'Segnata come “non la sapevo”: finisce nel contenitore degli errori.') + '</div>';
+  h += '<div class="bar"><button class="btn ghost" data-act="fcback" ' + (p>0?'':'disabled') + '>← Indietro</button>';
+  if(graded) h += '<button class="btn sec" data-act="fcundo">' + (past?'Cambia':'Annulla') + '</button><span class="sp"></span><button class="btn" data-act="fcnext">Avanti →</button>';
+  else if(show) h += '<span class="sp"></span><button class="btn danger" data-act="grade" data-arg="0">Non la sapevo</button><button class="btn" style="background:var(--ok)" data-act="grade" data-arg="1">La sapevo</button>';
+  else h += '<span class="sp"></span><button class="btn" data-act="flip">Mostra la risposta</button>';
+  h += '</div>';
+  h += '<div class="hint">' + (show && !graded ? '<kbd>1</kbd> non la sapevo, <kbd>2</kbd> la sapevo.' : 'Le carte che non sai finiscono negli errori, come nel quiz.') + '</div>';
+  v.innerHTML = h;
 }
+function fcAct(act, arg){
+  const name = S.fcMode==='err' ? 'fcerr' : 'fc'; const d = deck(name); const p = vpos(name);
+  if(act==='fcmode'){ S.fcMode = arg; const nn = arg==='err'?'fcerr':'fc'; const dd = deck(nn); if(arg==='err' && dd.p >= dd.c.length) fill('fcerr'); flipped=false; save(); renderFc(); return; }
+  if(act==='fcnew'){ fill(name); flipped=false; renderFc(); return; }
+  if(act==='flip'){ if(p < d.c.length && !d.g[d.c[p]]) { flipped = !flipped; renderFc(); } return; }
+  if(act==='grade'){ if(p!==d.p) return; const q = byId(d.c[p]); if(!q || d.g[q.id]) return; const ok = arg==='1'; answer(name, q.id, ok?1:0, ok); d.g[q.id].ok = ok; save(); flipped=false; renderFc(); return; }
+  if(act==='fcback'){ if(p >= d.c.length) view[name] = d.c.length-1; else if(p>0) view[name] = p-1; flipped=false; renderFc(); return; }
+  if(act==='fcnext'){ if(p < d.p) view[name] = p+1; else advance(name); flipped=false; renderFc(); return; }
+  if(act==='fcundo'){ undo(name, d.c[p]); flipped=true; renderFc(); return; }
+}
+
+// ---- tastiera ----
 document.addEventListener('keydown', e=>{
-  if(document.getElementById('v-train').hidden) return;
-  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='TEXTAREA') return;
   const k = e.key.toUpperCase();
-  if(!answered && k.length===1 && '1234'.includes(k)) pick(parseInt(k)-1);
-  else if(!answered && k.length===1 && 'ABCD'.includes(k)) pick(L.indexOf(k));
-  else if(answered && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); next(); }
+  if(!document.getElementById('v-train').hidden){
+    const d = deck(S.mode); const p = vpos(S.mode); if(p >= d.c.length) return;
+    const g = d.g[d.c[p]];
+    if(!g && k.length===1 && '1234'.includes(k)) trainAct('pick', parseInt(k)-1);
+    else if(!g && k.length===1 && 'ABCD'.includes(k)) trainAct('pick', L.indexOf(k));
+    else if(g && (e.key==='Enter'||e.key===' '||e.key==='ArrowRight')){ e.preventDefault(); trainAct('next'); }
+    else if(e.key==='ArrowLeft'){ e.preventDefault(); trainAct('back'); }
+    else if(g && k==='Z'){ trainAct('undo'); }
+  } else if(!document.getElementById('v-fc').hidden){
+    const name = S.fcMode==='err'?'fcerr':'fc'; const d = deck(name); const p = vpos(name); if(p >= d.c.length) return;
+    const g = d.g[d.c[p]];
+    if(!g && (e.key===' '||e.key==='Enter')){ e.preventDefault(); fcAct('flip'); }
+    else if(!g && flipped && (k==='1'||k==='2')) fcAct('grade', k==='2'?'1':'0');
+    else if(g && (e.key==='Enter'||e.key===' '||e.key==='ArrowRight')){ e.preventDefault(); fcAct('fcnext'); }
+    else if(e.key==='ArrowLeft'){ e.preventDefault(); fcAct('fcback'); }
+  }
 });
 
 // ---- errori frequenti ----
@@ -169,34 +361,34 @@ function renderErrors(){
   const v = document.getElementById('v-errors');
   const list = errorList();
   let h = '<div class="note">Qui finiscono le domande sbagliate almeno una volta, in ordine di quante volte le hai sbagliate. Una domanda esce dal contenitore da sola quando la azzecchi due volte di fila; puoi anche toglierla a mano.</div>';
-  h += '<div class="bar" style="margin:0 0 14px"><button class="btn" onclick="setMode(\'err\');show(\'train\')" ' + (list.length?'':'disabled') + '>Allenati solo su queste (' + list.length + ')</button></div>';
+  h += '<div class="bar" style="margin:0 0 14px"><button class="btn" data-act="trainerr" ' + (list.length?'':'disabled') + '>Allenati solo su queste · ' + list.length + '</button><button class="btn sec" data-act="fcerr" ' + (list.length?'':'disabled') + '>Flashcard degli errori</button></div>';
   if(!list.length){ h += '<div class="card">Nessun errore registrato per ora.</div>'; v.innerHTML=h; return; }
   h += '<div class="card">';
   list.forEach(q=>{
     const s = st(q.id); const a = ansOf(q);
     h += '<div class="row"><div class="t">' + esc(q.q) + '</div>'
-      + '<div class="s"><span class="pill">' + s.ko + ' ' + (s.ko===1?'errore':'errori') + '</span><span class="pill g">' + s.ok + ' giuste</span>Modulo ' + q.m + ', n. ' + q.n + ' · ultime risposte: ' + (s.last.map(x=>x?'✓':'✗').join(' ')||'–') + '</div>'
-      + '<details><summary>Vedi risposta</summary><div class="ans g"><span class="l">' + L[a] + '</span>' + esc(q.o[a]) + '</div></details>'
-      + '<div class="bar"><button class="btn sec" onclick="forgive(' + q.id + ')">Togli dal contenitore</button></div></div>';
+      + '<div class="s"><span class="pill">' + s.ko + ' ' + (s.ko===1?'errore':'errori') + '</span><span class="pill g">' + s.ok + ' giuste</span><span>Modulo ' + q.m + ', n. ' + q.n + ' · ultime: ' + (s.last.map(x=>x?'✓':'✗').join(' ')||'–') + '</span></div>'
+      + '<details><summary>Vedi risposta</summary><div class="ans g"><span class="l">' + L[a] + '</span><span>' + esc(q.o[a]) + '</span></div></details>'
+      + '<div class="bar" style="margin-top:8px"><button class="btn ghost sm" data-act="forgive" data-arg="' + q.id + '">Togli dal contenitore</button></div></div>';
   });
   h += '</div>';
   v.innerHTML = h;
 }
-function forgive(id){ const s = st(id); s.last.push(true,true); if(s.last.length>10) s.last = s.last.slice(-10); save(); renderErrors(); }
+function forgive(id){ const s = st(id); s.last.push(true,true); if(s.last.length>10) s.last = s.last.slice(-10); save(); renderErrors(); chips(); }
 
 // ---- sfoglia ----
 let bq = '', bm = 'all';
 function renderBrowse(){
   const v = document.getElementById('v-browse');
   const mods = [...new Set(RAW.map(q=>q.m))];
-  let h = '<div class="bar" style="margin:0 0 14px"><input type="search" placeholder="Cerca nel testo..." value="' + esc(bq) + '" oninput="bq=this.value;renderBrowse()" style="flex:1;min-width:200px"><select onchange="bm=this.value;renderBrowse()"><option value="all">Tutti i moduli</option>' + mods.map(m=>'<option value="' + m + '" ' + (bm==m?'selected':'') + '>Modulo ' + m + '</option>').join('') + '</select></div>';
+  let h = '<div class="bar" style="margin:0 0 14px"><input type="search" placeholder="Cerca nel testo…" value="' + esc(bq) + '" oninput="bq=this.value;renderBrowse()" style="flex:1;min-width:200px"><select onchange="bm=this.value;renderBrowse()"><option value="all">Tutti i moduli</option>' + mods.map(m=>'<option value="' + m + '" ' + (bm==m?'selected':'') + '>Modulo ' + m + '</option>').join('') + '</select></div>';
   const f = RAW.filter(q => (bm==='all'||q.m==bm) && (!bq || (q.q+' '+q.o.join(' ')).toLowerCase().includes(bq.toLowerCase())));
   h += '<div class="small" style="margin-bottom:8px">' + f.length + ' domande</div><div class="card">';
   f.slice(0,300).forEach(q=>{
     const a = ansOf(q); const s = S.stats[q.id];
-    h += '<div class="row"><div class="t">Modulo ' + q.m + ', n. ' + q.n + '. ' + esc(q.q) + '</div>';
-    q.o.forEach((o,i)=> h += '<div class="ans ' + (i===a?'g':'') + '"><span class="l">' + L[i] + '</span>' + esc(o) + '</div>');
-    if(q.a<0) h += '<div class="s">' + badge(q).replace(' · ','') + (S.manual[q.id]===undefined ? ' confermala o correggila nella scheda “Da completare”.' : '') + '</div>';
+    h += '<div class="row"><div class="t"><span class="small">Modulo ' + q.m + ', n. ' + q.n + '.</span> ' + esc(q.q) + '</div>';
+    q.o.forEach((o,i)=> h += '<div class="ans ' + (i===a?'g':'') + '"><span class="l">' + L[i] + '</span><span>' + esc(o) + '</span></div>');
+    if(q.a<0) h += '<div class="s">' + (S.manual[q.id]!==undefined ? '<span class="pill g">risposta impostata a mano</span>' : '<span class="pill w">senza risposta nel PDF</span> impostala nella scheda “Da completare”.') + '</div>';
     else if(s) h += '<div class="s">Tue risposte: ' + s.ok + ' giuste, ' + s.ko + ' sbagliate.</div>';
     h += '</div>';
   });
@@ -210,55 +402,70 @@ function renderTodo(){
   const v = document.getElementById('v-todo');
   const list = RAW.filter(q=>q.a<0);
   const done = list.filter(q=>S.manual[q.id]!==undefined).length;
-  let h = '<div class="note">Il PDF non segna la risposta corretta per ' + list.length + ' domande (quasi tutte negli ultimi moduli). Impostala tu dalla dispensa: appena salvata, la domanda entra nel giro di allenamento. Impostate: ' + done + ' su ' + list.length + '.'
-    + '</div>';
+  let h = '<div class="note">Il PDF non segna la risposta corretta per ' + list.length + ' domande (quasi tutte negli ultimi moduli). Impostala tu dalla dispensa: appena salvata, la domanda entra nel giro di allenamento. Impostate: <b>' + done + '</b> su ' + list.length + '.</div>';
   h += '<div class="card">';
   list.forEach(q=>{
     const m = S.manual[q.id];
-    h += '<div class="row"><div class="t">Modulo ' + q.m + ', n. ' + q.n + '. ' + esc(q.q) + '</div>';
-    q.o.forEach((o,i)=> h += '<label class="ans ' + ((m!==undefined ? m===i : q.s===i) ? 'g' : '') + '" style="display:block;cursor:pointer"><input type="radio" name="m' + q.id + '" ' + ((m!==undefined ? m===i : false)?'checked':'') + ' onchange="setManual(' + q.id + ',' + i + ')"> <span class="l">' + L[i] + '</span>' + esc(o) + '</label>');
-    if(m!==undefined) h += '<div class="s"><span class="pill g">impostata: ' + L[m] + '</span>' + (q.s!==undefined && q.s!==m ? ' (il suggerimento era ' + L[q.s] + ')' : '') + ' <button class="btn sec" style="padding:4px 10px;font-size:13px" onclick="unsetManual(' + q.id + ')">Annulla</button></div>';
-    else if(q.s!==undefined) h += '<div class="s"><span class="pill w">suggerita: ' + L[q.s] + ' · fiducia ' + q.f + '</span>' + esc(q.w) + ' <button class="btn" style="padding:4px 10px;font-size:13px;margin-left:6px" onclick="setManual(' + q.id + ',' + q.s + ')">Conferma ' + L[q.s] + '</button></div>';
+    h += '<div class="row"><div class="t"><span class="small">Modulo ' + q.m + ', n. ' + q.n + '.</span> ' + esc(q.q) + '</div>';
+    q.o.forEach((o,i)=> h += '<label class="ans ' + (m===i ? 'g' : '') + '"><input type="radio" name="m' + q.id + '" ' + (m===i?'checked':'') + ' onchange="setManual(' + q.id + ',' + i + ')"> <span class="l">' + L[i] + '</span><span>' + esc(o) + '</span></label>');
+    if(m!==undefined) h += '<div class="s"><span class="pill g">impostata: ' + L[m] + '</span><button class="btn ghost sm" onclick="unsetManual(' + q.id + ')">Annulla</button></div>';
     h += '</div>';
   });
   h += '</div>'; v.innerHTML = h;
 }
-function setManual(id,i){ S.manual[id]=i; save(); const y = window.scrollY; renderTodo(); window.scrollTo(0,y); }
-function unsetManual(id){ delete S.manual[id]; save(); const y = window.scrollY; renderTodo(); window.scrollTo(0,y); }
+function setManual(id,i){ S.manual[id]=i; save(); const y = window.scrollY; renderTodo(); chips(); window.scrollTo(0,y); }
+function unsetManual(id){ delete S.manual[id]; save(); const y = window.scrollY; renderTodo(); chips(); window.scrollTo(0,y); }
 
 // ---- statistiche ----
+function totals(){ let ok=0, ko=0, seen=0; for(const id in S.stats){ ok+=S.stats[id].ok; ko+=S.stats[id].ko; if(S.stats[id].ok+S.stats[id].ko) seen++; } return {ok,ko,seen}; }
 function renderStats(){
   const v = document.getElementById('v-stats');
-  let ok=0, ko=0, seen=0;
-  for(const id in S.stats){ ok+=S.stats[id].ok; ko+=S.stats[id].ko; if(S.stats[id].ok+S.stats[id].ko) seen++; }
-  const tot = ready().length;
+  const t = totals(); const tot = ready().length; const d = deck('all');
   let h = '<div class="stats">'
     + '<div class="stat"><b>' + tot + '</b><span>domande in gioco (su ' + RAW.length + ')</span></div>'
-    + '<div class="stat"><b>' + seen + '</b><span>domande viste almeno una volta</span></div>'
-    + '<div class="stat"><b>' + (ok+ko?Math.round(ok/(ok+ko)*100):0) + '%</b><span>risposte giuste (' + ok + ' su ' + (ok+ko) + ')</span></div>'
+    + '<div class="stat"><b>' + t.seen + '</b><span>domande viste almeno una volta</span></div>'
+    + '<div class="stat"><b>' + (t.ok+t.ko?Math.round(t.ok/(t.ok+t.ko)*100):0) + '%</b><span>risposte giuste (' + t.ok + ' su ' + (t.ok+t.ko) + ')</span></div>'
     + '<div class="stat"><b>' + errorList().length + '</b><span>nel contenitore errori</span></div>'
     + '<div class="stat"><b>' + RAW.filter(q=>q.a<0 && S.manual[q.id]===undefined).length + '</b><span>senza risposta nel PDF, ancora da impostare</span></div>'
-    + '<div class="stat"><b>' + S.cycleN + '</b><span>giro in corso (' + S.cyclePos + ' di ' + S.cycle.length + ' fatte)</span></div>'
+    + '<div class="stat"><b>' + d.n + '</b><span>giro in corso (' + Math.min(d.p,d.c.length) + ' di ' + d.c.length + ' fatte)</span></div>'
     + '</div>';
   const mods = {};
   RAW.forEach(q=>{ const m = mods[q.m] || (mods[q.m]={ok:0,ko:0,n:0}); m.n++; const s=S.stats[q.id]; if(s){m.ok+=s.ok;m.ko+=s.ko;} });
-  h += '<div class="card"><div style="font-weight:600;margin-bottom:8px">Per modulo</div>';
-  Object.keys(mods).forEach(k=>{ const m=mods[k]; const t=m.ok+m.ko; h += '<div class="row" style="padding:6px 0;display:flex;justify-content:space-between"><span>Modulo ' + k + ' (' + m.n + ' domande)</span><span class="small">' + (t?Math.round(m.ok/t*100)+'% giuste su '+t+' risposte':'mai fatto') + '</span></div>'; });
+  h += '<div class="card"><h2>Per modulo</h2>';
+  Object.keys(mods).forEach(k=>{ const m=mods[k]; const tt=m.ok+m.ko; const pc = tt?Math.round(m.ok/tt*100):0;
+    h += '<div class="mbar"><span class="nm">Modulo ' + k + ' <span class="small">(' + m.n + ')</span></span><span class="tr"><i style="width:' + pc + '%"></i></span><span class="pc">' + (tt ? pc + '% su ' + tt : 'mai fatto') + '</span></div>'; });
   h += '</div>';
-  h += '<div class="bar"><button class="btn sec" onclick="if(confirm(\'Ricominciare il giro da capo, tenendo le statistiche?\')){newCycle();S.mode=\'all\';answered=false;renderStats();}">Nuovo giro</button><button class="btn danger" onclick="if(confirm(\'Cancellare tutte le statistiche e gli errori? Le risposte impostate a mano restano.\')){S.stats={};S.cycle=[];S.cyclePos=0;S.cycleN=0;S.errCycle=[];S.errPos=0;S.mode=\'all\';save();newCycle();renderStats();}">Azzera statistiche</button></div>'
+  h += '<div class="bar"><button class="btn sec" data-act="stnew">Nuovo giro</button><button class="btn danger" data-act="streset">Azzera statistiche</button></div>'
     + '<p class="small">I dati restano salvati in questo browser su questo dispositivo.</p>';
   v.innerHTML = h;
 }
 
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function show(v){
-  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));
-  ['train','errors','browse','todo','stats'].forEach(k=>document.getElementById('v-'+k).hidden = k!==v);
-  ({train:renderTrain, errors:renderErrors, browse:renderBrowse, todo:renderTodo, stats:renderStats})[v]();
-  window.scrollTo(0,0);
+// ---- azioni e navigazione ----
+document.body.addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if(!b || b.disabled) return;
+  const act = b.dataset.act, arg = b.dataset.arg;
+  if(['mode','newcycle','back','next','skip','undo','pick'].includes(act)) return trainAct(act, arg);
+  if(['fcmode','fcnew','flip','grade','fcback','fcnext','fcundo'].includes(act)) return fcAct(act, arg);
+  if(act==='forgive') return forgive(parseInt(arg));
+  if(act==='trainerr'){ S.mode='err'; fill('err'); save(); return show('train'); }
+  if(act==='fcerr'){ S.fcMode='err'; fill('fcerr'); save(); return show('fc'); }
+  if(act==='stnew'){ if(confirm('Ricominciare il giro da capo, tenendo le statistiche?')){ fill('all'); S.mode='all'; save(); renderStats(); } return; }
+  if(act==='streset'){ if(confirm('Cancellare tutte le statistiche e gli errori? Le risposte impostate a mano restano.')){ S.stats={}; S.d={}; S.mode='all'; S.fcMode='all'; for(const k in view) delete view[k]; fill('all'); save(); renderStats(); chips(); } return; }
+});
+function chips(){
+  const t = totals(); const nErr = errorList().length;
+  document.getElementById('chips').innerHTML = '<span class="chip">' + ready().length + ' domande</span><span class="chip">' + (t.ok+t.ko ? Math.round(t.ok/(t.ok+t.ko)*100) + '% giuste' : 'nessuna risposta ancora') + '</span>';
+  const c = document.getElementById('errcnt'); c.textContent = nErr; c.hidden = !nErr;
 }
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
-if(!S.cycle.length) newCycle();
+function show(v){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on', b.dataset.v===v));
+  ['train','fc','errors','browse','todo','stats'].forEach(k=>document.getElementById('v-'+k).hidden = k!==v);
+  flipped = false;
+  ({train:renderTrain, fc:renderFc, errors:renderErrors, browse:renderBrowse, todo:renderTodo, stats:renderStats})[v]();
+  chips(); window.scrollTo(0,0);
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.v));
+if(!deck('all').c.length) fill('all');
 show('train');
 </script>
 </body>
