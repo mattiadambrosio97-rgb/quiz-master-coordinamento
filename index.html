@@ -74,8 +74,8 @@ const RAW = [{"id": 1, "m": 1, "n": 1, "q": "Le norme di riferimento per i DPI s
 const LS = 'quizmaster-v1';
 const L = 'ABCD';
 let S = load();
-function load(){ try{ const s = JSON.parse(localStorage.getItem(LS)); if(s) return s; }catch(e){} return {stats:{}, manual:{}, cycle:[], cyclePos:0, cycleN:0, errCycle:[], errPos:0, mode:'all', useSugg:true}; }
-if(S.useSugg===undefined) S.useSugg=true;
+function load(){ try{ const s = JSON.parse(localStorage.getItem(LS)); if(s) return s; }catch(e){} return {stats:{}, manual:{}, cycle:[], cyclePos:0, cycleN:0, errCycle:[], errPos:0, mode:'all', useSugg:false}; }
+if(S.useSugg===undefined) S.useSugg=false;
 function save(){ try{ localStorage.setItem(LS, JSON.stringify(S)); }catch(e){} }
 function ansOf(q){ if(q.a >= 0) return q.a; if(S.manual[q.id] !== undefined) return S.manual[q.id]; if(S.useSugg && q.s !== undefined) return q.s; return -1; }
 function badge(q){ if(q.a >= 0) return ''; if(S.manual[q.id] !== undefined) return ' · <span class="pill g">risposta confermata a mano</span>'; if(q.s !== undefined) return ' · <span class="pill w">risposta suggerita (fiducia ' + q.f + '), assente nel PDF</span>'; return ''; }
@@ -211,7 +211,7 @@ function renderTodo(){
   const list = RAW.filter(q=>q.a<0);
   const done = list.filter(q=>S.manual[q.id]!==undefined).length;
   let h = '<div class="note">Il PDF non segna la risposta corretta per ' + list.length + ' domande (quasi tutte negli ultimi moduli). Per ciascuna trovi una risposta <b>suggerita da un modello di IA</b>, con il grado di fiducia e il motivo: va presa come ipotesi, non come verità della dispensa. Confermala se torna con quello che hai studiato, oppure scegli tu quella giusta. Confermate: ' + done + ' su ' + list.length + '.'
-    + '<div style="margin-top:8px"><label style="cursor:pointer"><input type="checkbox" ' + (S.useSugg?'checked':'') + ' onchange="S.useSugg=this.checked;save();renderTodo()"> Usa nel giro di allenamento anche le risposte suggerite non ancora confermate</label></div></div>';
+    + '<div style="margin-top:8px"><label style="cursor:pointer"><input type="checkbox" ' + (S.useSugg?'checked':'') + ' onchange="S.useSugg=this.checked;save();renderTodo()"> Metti nel giro anche le risposte suggerite non ancora confermate (sconsigliato: sono ipotesi)</label></div></div>';
   h += '<div class="card">';
   list.forEach(q=>{
     const m = S.manual[q.id];
