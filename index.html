@@ -190,6 +190,7 @@ function load(){
     delete s.cycle; delete s.cyclePos; delete s.cycleN; delete s.errCycle; delete s.errPos; delete s.useSugg;
   }
   if(!['all','pan','piat','err'].includes(s.mode)) s.mode = 'all';
+  if(!HAS_PAN && (s.mode==='pan' || s.mode==='piat')) s.mode = 'all';   // filtro salvato da una versione col paniere
   if(!s.fcMode) s.fcMode = 'all';
   if(typeof s.mod !== 'string') s.mod = '';
   return s;
@@ -240,7 +241,11 @@ function sync(name){ // aggiunge al giro le domande diventate disponibili (rispo
   const d = deck(name); const ids = pool(name).map(q=>q.id);
   const extra = ids.filter(id => !d.c.includes(id));
   if(extra.length && d.p < d.c.length) d.c = d.c.slice(0,d.p).concat(shuffle(d.c.slice(d.p).concat(extra)));
-  if(name==='all'||name==='fc'){ const before = d.c.length; d.c = d.c.filter(id => ids.includes(id)); if(d.c.length !== before) d.p = Math.min(d.p, d.c.length); }
+  if(name==='all'||name==='fc'){ // domande sparite dal quiz: via dal giro, e il puntatore arretra di quante ne stavano prima
+    const spariteprima = d.c.slice(0,d.p).filter(id => !ids.includes(id)).length;
+    d.c = d.c.filter(id => ids.includes(id)); d.p = Math.min(d.p - spariteprima, d.c.length);
+    for(const id in d.g) if(!ids.includes(+id)) delete d.g[id];
+  }
 }
 function answer(name, id, pick, isOk){
   const d = deck(name); const prev = S.stats[id] ? JSON.parse(JSON.stringify(S.stats[id])) : null;
