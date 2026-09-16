@@ -92,6 +92,10 @@ h2{font-size:17px;margin:0 0 12px}
 .btn:disabled{opacity:.4;cursor:default}
 kbd{border:1px solid var(--bd);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:11.5px;background:var(--soft);font-family:inherit}
 .hint{font-size:12.5px;color:var(--mut);margin-top:10px}
+.codice{font-family:ui-monospace,Consolas,monospace;font-size:19px;letter-spacing:2px;background:var(--soft);padding:2px 9px;border-radius:8px;white-space:nowrap}
+#syncbar[hidden]{display:none}
+#syncbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px}
+#synccode{text-transform:uppercase;letter-spacing:1px;width:220px;max-width:100%}
 
 /* fine giro */
 .done{text-align:center;padding:36px 22px}
@@ -166,6 +170,7 @@ label.ans:hover{background:var(--soft)}
   <button class="tab" data-v="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="lbl">Statistiche</span></button>
 </div></div></nav>
 <main class="wrap">
+<div id="syncbar" class="card small" hidden><span>Usi il quiz su iPhone e computer? Con il salvataggio in rete riprendi da dove eri, su tutti e due.</span><button class="btn sm" data-act="syncbanner">Attiva</button><button class="btn ghost sm" data-act="syncbannerx">Non ora</button></div>
 <section id="v-train"></section>
 <section id="v-fc" hidden></section>
 <section id="v-errors" hidden></section>
@@ -182,7 +187,10 @@ const L = 'ABCD';
 let S = load();
 function load(){
   let s = null; try{ s = JSON.parse(localStorage.getItem(LS)); }catch(e){}
-  if(!s) s = {stats:{}, manual:{}};
+  return norm(s);
+}
+function norm(s){ // mette in forma uno stato, da localStorage, da file o dalla rete
+  if(!s || typeof s !== 'object') s = {stats:{}, manual:{}};
   if(!s.stats) s.stats = {}; if(!s.manual) s.manual = {};
   if(!s.d){ // migrazione dal formato precedente
     s.d = {};
@@ -195,7 +203,56 @@ function load(){
   if(typeof s.mod !== 'string') s.mod = '';
   return s;
 }
-function save(){ try{ localStorage.setItem(LS, JSON.stringify(S)); }catch(e){} }
+function save(){ S.t = Date.now(); try{ localStorage.setItem(LS, JSON.stringify(S)); }catch(e){} syncPlan(); }
+
+// ---- salvataggio in rete (facoltativo): un codice personale, i progressi seguono chi studia su iPhone e PC ----
+// Il codice e' l'unica chiave: chi lo conosce legge e scrive quel salvataggio. Vince sempre la versione piu' recente (S.t).
+const SYNC_URL = 'https://quiz-master.mattia-dambrosio-97.workers.dev/p/';
+const SYNC_LS = 'quizmaster-rete';
+const SY = {c:'', st:'', timer:null, sporco:false, nascosto:false};
+try{ const j = JSON.parse(localStorage.getItem(SYNC_LS)); if(j){ if(j.c) SY.c = j.c; SY.nascosto = !!j.x; } }catch(e){}
+(function(){ const c = (new URLSearchParams(location.search).get('c')||'').toUpperCase().replace(/[^A-Z0-9]/g,''); if(c.length>=6 && !SY.c) syncSetCode(c); })();
+function syncSetCode(c){ SY.c = c; try{ localStorage.setItem(SYNC_LS, JSON.stringify({c, x:SY.nascosto})); }catch(e){}
+  const u = new URL(location.href); if(c) u.searchParams.set('c', c); else u.searchParams.delete('c'); history.replaceState(null, '', u); syncBanner(); }
+function syncTesto(){ return {ok:'Progressi al sicuro in rete.', wait:'Salvataggio in rete in corso…', err:'In questo momento la rete non risponde: i progressi restano salvati qui e si allineano appena torna.'}[SY.st] || ''; }
+function syncStato(s){ SY.st = s; chips(); const m = document.getElementById('syncmsg'); if(m) m.textContent = syncTesto(); }
+function nuovoCodice(){ const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; const r = new Uint32Array(8); crypto.getRandomValues(r); let c = ''; for(let i=0;i<8;i++) c += A[r[i] % A.length]; return c; }
+async function syncGet(c){ const r = await fetch(SYNC_URL + c, {cache:'no-store'}); if(r.status === 404) return null; if(!r.ok) throw new Error(r.status); return r.json(); }
+async function syncPut(chiusura){
+  if(!SY.c) return; SY.sporco = false; syncStato('wait');
+  const body = JSON.stringify({t:S.t||0, stato:S});
+  try{
+    const r = await fetch(SYNC_URL + SY.c, {method:'PUT', keepalive: !!chiusura && body.length < 60000, headers:{'Content-Type':'text/plain'}, body});
+    if(!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    if(j.vinto === 'remoto' && j.stato && j.t > (S.t||0)) adotta(j.stato); else syncStato('ok');
+  }catch(e){ SY.sporco = true; syncStato('err'); if(!SY.timer) SY.timer = setTimeout(()=>{ SY.timer = null; if(SY.sporco) syncPut(); }, 60000); }
+}
+function syncPlan(){ if(!SY.c) return; SY.sporco = true; if(SY.timer) return; SY.timer = setTimeout(()=>{ SY.timer = null; syncPut(); }, 30000); }
+function syncFlush(){ if(SY.timer){ clearTimeout(SY.timer); SY.timer = null; } if(SY.sporco) syncPut(true); }
+async function syncPull(){
+  if(!SY.c) return;
+  try{ const j = await syncGet(SY.c); if(j && j.t > (S.t||0)) adotta(j.stato); else if(!j || (S.t||0) > j.t) syncPut(); else syncStato('ok'); }
+  catch(e){ syncStato('err'); }
+}
+function adotta(st){ // uno stato piu' recente arrivato dalla rete prende il posto di quello locale
+  S = norm(st); try{ localStorage.setItem(LS, JSON.stringify(S)); }catch(e){}
+  for(const k in view) delete view[k]; flipped = false;
+  if(!deck(dn('all')).c.length) fill(dn('all'));
+  syncStato('ok'); const v = document.querySelector('.tab.on'); show(v ? v.dataset.v : 'train');
+}
+async function collega(v){
+  const m = document.getElementById('syncmsg'); const c = (v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(c.length < 6){ if(m) m.textContent = 'Il codice ha 8 fra lettere e numeri: controlla.'; return; }
+  if(m) m.textContent = 'Cerco il salvataggio…';
+  let j; try{ j = await syncGet(c); }catch(e){ if(m) m.textContent = 'La rete non risponde, riprova fra poco.'; return; }
+  if(!j){ if(m) m.textContent = 'Nessun salvataggio con questo codice: controlla le lettere (la O e lo zero non si usano).'; return; }
+  let viste = 0; for(const k in (j.stato.stats||{})){ const x = j.stato.stats[k]; viste += (x.ok||0) + (x.ko||0); }
+  const t = totals();
+  if(t.ok+t.ko && !confirm('Trovato un salvataggio con ' + viste + ' risposte date. Usarlo qui? Le ' + (t.ok+t.ko) + ' risposte di questo dispositivo vengono sostituite.')) return;
+  syncSetCode(c); adotta(j.stato);
+}
+function syncBanner(){ const b = document.getElementById('syncbar'); if(b) b.hidden = !!(SY.c || SY.nascosto); }
 function ansOf(q){ if(q.a >= 0) return q.a; if(S.manual[q.id] !== undefined) return S.manual[q.id]; return -1; }
 function ready(){ return RAW.filter(q => ansOf(q) >= 0); }
 function st(id){ return S.stats[id] || (S.stats[id] = {ok:0, ko:0, last:[]}); }
@@ -473,9 +530,17 @@ function renderStats(){
   Object.keys(mods).forEach(k=>{ const m=mods[k]; const tt=m.ok+m.ko; const pc = tt?Math.round(m.ok/tt*100):0;
     h += '<div class="mbar"><span class="nm">' + mlab(k) + ' <span class="small">(' + m.n + ')</span></span><span class="tr"><i style="width:' + pc + '%"></i></span><span class="pc">' + (tt ? pc + '% su ' + tt : 'mai fatto') + '</span></div>'; });
   h += '</div>';
-  h += '<div class="card"><h2>I tuoi progressi</h2>'
-    + '<p class="small">Il quiz salva da solo dopo ogni risposta, in questo browser su questo dispositivo: chiudi e riapri, riprendi dal punto esatto in cui eri. Per portarli su un altro telefono o computer, o per tenerne una copia al sicuro, scarica il file e ricaricalo dove ti serve.</p>'
-    + '<div class="bar"><button class="btn" data-act="export">Scarica i miei progressi</button><button class="btn sec" data-act="import">Carica un salvataggio</button></div>'
+  h += '<div class="card" id="synccard"><h2>I tuoi progressi</h2>'
+    + (SY.c
+      ? '<p class="small">Salvataggio in rete attivo. Il tuo codice personale è <b class="codice">' + SY.c + '</b>: scrivitelo. Sull’altro dispositivo apri il quiz, vieni in questa scheda, tocca «Ho già un codice» e inseriscilo: i progressi ti seguono.</p>'
+        + '<p class="small" id="syncmsg">' + syncTesto() + '</p>'
+        + '<div class="bar"><button class="btn sec" data-act="synccopy">Copia il codice</button><button class="btn sec" data-act="synclink">Ho già un codice</button><button class="btn ghost sm" data-act="syncoff">Scollega questo dispositivo</button></div>'
+      : '<p class="small">Il quiz salva da solo dopo ogni risposta, però solo in questo browser. Se lo usi anche su un altro dispositivo attiva il salvataggio in rete: ricevi un codice personale, lo inserisci sull’altro dispositivo e riprendi da dove eri.</p>'
+        + '<div class="bar"><button class="btn" data-act="syncon">Attiva il salvataggio in rete</button><button class="btn sec" data-act="synclink">Ho già un codice</button></div>'
+        + '<p class="small" id="syncmsg"></p>')
+    + '<div id="synclink" hidden style="margin-top:10px;gap:8px;flex-wrap:wrap"><input type="search" id="synccode" placeholder="Codice, 8 lettere e numeri" autocapitalize="characters" autocomplete="off" spellcheck="false"><button class="btn" data-act="syncgo">Collega</button></div>'
+    + '<p class="small" style="margin-top:14px">Vuoi anche una copia su file? Scaricala e ricaricala dove ti serve.</p>'
+    + '<div class="bar"><button class="btn sec" data-act="export">Scarica i miei progressi</button><button class="btn sec" data-act="import">Carica un salvataggio</button></div>'
     + '<p class="small" id="iomsg"></p></div>'
     + '<div class="bar"><button class="btn sec" data-act="stnew">Nuovo giro</button><button class="btn danger" data-act="streset">Azzera statistiche</button></div>';
   v.innerHTML = h;
@@ -492,6 +557,13 @@ document.body.addEventListener('click', e=>{
   if(act==='fcerr'){ S.fcMode='err'; fill('fcerr'); save(); return show('fc'); }
   if(act==='stnew'){ if(confirm('Ricominciare il giro da capo, tenendo le statistiche?')){ fill('all'); S.mode='all'; save(); renderStats(); } return; }
   if(act==='export'){ salvaSuFile(); return; }
+  if(act==='syncon'){ syncSetCode(nuovoCodice()); S.t = Date.now(); syncPut(); syncBanner(); renderStats(); return; }
+  if(act==='synclink'){ const d = document.getElementById('synclink'); d.hidden = false; d.style.display = 'flex'; document.getElementById('synccode').focus(); return; }
+  if(act==='syncgo'){ collega(document.getElementById('synccode').value); return; }
+  if(act==='synccopy'){ const m = document.getElementById('syncmsg'); (navigator.clipboard ? navigator.clipboard.writeText(SY.c) : Promise.reject()).then(()=>{ if(m) m.textContent = 'Codice copiato.'; }, ()=>{ if(m) m.textContent = 'Il codice è ' + SY.c + ': scrivitelo.'; }); return; }
+  if(act==='syncoff'){ if(confirm('Scollegare questo dispositivo dal salvataggio in rete? I progressi restano sia qui sia in rete, però non si allineano più.')){ syncSetCode(''); SY.st = ''; syncBanner(); renderStats(); chips(); } return; }
+  if(act==='syncbanner'){ show('stats'); const c = document.getElementById('synccard'); if(c) c.scrollIntoView({behavior:'smooth'}); return; }
+  if(act==='syncbannerx'){ SY.nascosto = true; syncSetCode(SY.c); syncBanner(); return; }
   if(act==='import'){ document.getElementById('fileIn').click(); return; }
   if(act==='streset'){ if(confirm('Cancellare tutte le statistiche e gli errori? Le risposte impostate a mano restano.')){ S.stats={}; S.d={}; S.mode='all'; S.fcMode='all'; for(const k in view) delete view[k]; fill('all'); save(); renderStats(); chips(); } return; }
 });
@@ -515,14 +587,14 @@ function caricaDaFile(f){
     if(!st || typeof st !== 'object' || !st.stats){ if(m) m.textContent = 'Questo file non contiene progressi del quiz.'; return; }
     let viste = 0; for(const k in st.stats){ const x = st.stats[k]; viste += (x.ok||0) + (x.ko||0); }
     if(!confirm('Caricare questo salvataggio? Contiene ' + viste + ' risposte date. I progressi che hai adesso su questo dispositivo vengono sostituiti.')) return;
-    localStorage.setItem(LS, JSON.stringify(st));
+    st.t = Date.now(); localStorage.setItem(LS, JSON.stringify(st));
     location.reload();
   };
   r.readAsText(f);
 }
 function chips(){
   const t = totals(); const nErr = errorList().length;
-  document.getElementById('chips').innerHTML = '<span class="chip">' + ready().length + ' domande</span><span class="chip">' + (t.ok+t.ko ? Math.round(t.ok/(t.ok+t.ko)*100) + '% giuste' : 'nessuna risposta ancora') + '</span>';
+  document.getElementById('chips').innerHTML = '<span class="chip">' + ready().length + ' domande</span><span class="chip">' + (t.ok+t.ko ? Math.round(t.ok/(t.ok+t.ko)*100) + '% giuste' : 'nessuna risposta ancora') + '</span>' + (SY.c ? '<span class="chip">' + ({ok:'in rete ✓', wait:'in rete…', err:'rete assente'}[SY.st] || 'in rete') + '</span>' : '');
   const c = document.getElementById('errcnt'); c.textContent = nErr; c.hidden = !nErr;
 }
 function show(v){
@@ -536,6 +608,9 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.v));
 if(!HAS_PAN) document.getElementById('tab-todo').hidden = true;
 if(!deck(dn('all')).c.length) fill(dn('all'));
 show('train');
+syncBanner(); syncPull();
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'hidden') syncFlush(); else syncPull(); });
+window.addEventListener('pagehide', syncFlush);
 </script>
 </body>
 </html>
