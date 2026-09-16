@@ -418,7 +418,7 @@ function renderBrowse(){
     const a = ansOf(q); const s = S.stats[q.id];
     h += '<div class="row"><div class="t"><span class="small">' + lab(q) + '.</span> ' + esc(q.q) + '</div>';
     q.o.forEach((o,i)=> h += '<div class="ans ' + (i===a?'g':'') + '"><span class="l">' + L[i] + '</span><span>' + esc(o) + '</span></div>');
-    if(q.a<0) h += '<div class="s">' + (S.manual[q.id]!==undefined ? '<span class="pill g">risposta impostata a mano</span>' : '<span class="pill w">senza risposta nel PDF</span> impostala nella scheda “Da completare”.') + '</div>';
+    if(q.a<0) h += '<div class="s">' + (S.manual[q.id]!==undefined ? '<span class="pill g">risposta impostata a mano</span>' : '<span class="pill w">il paniere PDF non segna la risposta</span> impostala nella scheda “Da completare”.') + '</div>';
     else if(s) h += '<div class="s">Tue risposte: ' + s.ok + ' giuste, ' + s.ko + ' sbagliate.</div>';
     h += '</div>';
   });
@@ -432,7 +432,7 @@ function renderTodo(){
   const v = document.getElementById('v-todo');
   const list = RAW.filter(q=>q.a<0);
   const done = list.filter(q=>S.manual[q.id]!==undefined).length;
-  let h = '<div class="note">Il PDF non segna la risposta corretta per ' + list.length + ' domande (quasi tutte negli ultimi moduli). Impostala tu dalla dispensa: appena salvata, la domanda entra nel giro di allenamento. Impostate: <b>' + done + '</b> su ' + list.length + '.</div>';
+  let h = '<div class="note"><b>Riguarda solo il paniere del Master (il PDF).</b> Le ' + RAW.filter(q=>q.s==="piat").length + ' domande dei test di fine lezione della piattaforma hanno tutte la risposta e sono gia' in allenamento. Qui restano le ' + list.length + ' domande che il PDF del paniere non segna: impostale tu dalla dispensa e appena salvate entrano nel giro. Impostate: <b>' + done + '</b> su ' + list.length + '.</div>';
   h += '<div class="card">';
   list.forEach(q=>{
     const m = S.manual[q.id];
@@ -456,7 +456,7 @@ function renderStats(){
     + '<div class="stat"><b>' + t.seen + '</b><span>domande viste almeno una volta</span></div>'
     + '<div class="stat"><b>' + (t.ok+t.ko?Math.round(t.ok/(t.ok+t.ko)*100):0) + '%</b><span>risposte giuste (' + t.ok + ' su ' + (t.ok+t.ko) + ')</span></div>'
     + '<div class="stat"><b>' + errorList().length + '</b><span>nel contenitore errori</span></div>'
-    + '<div class="stat"><b>' + RAW.filter(q=>q.a<0 && S.manual[q.id]===undefined).length + '</b><span>senza risposta nel PDF, ancora da impostare</span></div>'
+    + '<div class="stat"><b>' + RAW.filter(q=>q.a<0 && S.manual[q.id]===undefined).length + '</b><span>del paniere PDF senza risposta segnata (i test della piattaforma sono tutti completi)</span></div>'
     + '<div class="stat"><b>' + d.n + '</b><span>giro in corso (' + Math.min(d.p,d.c.length) + ' di ' + d.c.length + ' fatte)</span></div>'
     + '</div>';
   const mods = {};
